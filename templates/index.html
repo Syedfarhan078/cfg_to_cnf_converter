@@ -1,0 +1,176 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CFG → CNF Converter</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <div class="particles" id="particles"></div>
+
+  <div class="card">
+    <div class="glow-circle"></div>
+    <div class="glow-circle" style="animation-delay: 2s;"></div>
+
+    <h1>
+      <span class="letter">C</span>
+      <span class="letter">F</span>
+      <span class="letter">G</span>
+      <span class="arrow">→</span>
+      <span class="letter">C</span>
+      <span class="letter">N</span>
+      <span class="letter">F</span>
+      <span class="subtitle">Converter</span>
+    </h1>
+
+    <form method="post" id="converterForm">
+      <div class="input-group">
+        <label for="grammar">
+          <span class="label-icon">📝</span>
+          Enter Grammar Rules
+        </label>
+        <div class="textarea-wrapper">
+          <textarea id="grammar" name="grammar" rows="8" cols="60" placeholder="S -> ASA | aB&#10;A -> B | S&#10;B -> b"
+            required>{{ request.form.get('grammar', '') }}</textarea>
+          <div class="textarea-glow"></div>
+        </div>
+        <div class="hint">
+          <span class="hint-icon">💡</span>
+          Use format: <code>Nonterminal -> production1 | production2</code>
+        </div>
+      </div>
+
+      <!-- CNF Conversion Rules Section -->
+      <div class="rules-section">
+        <h2 class="rules-title">CNF Conversion Steps Used</h2>
+
+        <div class="rule-box">
+          <h3>1. Epsilon (ε) Elimination</h3>
+          <p>Removes productions that generate an empty string, except when ε is allowed only for the start symbol.</p>
+        </div>
+
+        <div class="rule-box">
+          <h3>2. Unit Production Elimination</h3>
+          <p>Removes rules of the form A → B and replaces them with the full productions of B.</p>
+        </div>
+
+        <div class="rule-box">
+          <h3>3. Mixed Production Elimination</h3>
+          <p>Removes productions containing both terminals and nonterminals, such as A → aB, by replacing terminals with
+            new variables.</p>
+        </div>
+
+        <div class="rule-box">
+          <h3>4. Long Rule Elimination</h3>
+          <p>Breaks rules with more than two symbols into binary rules, such as A → BC D becoming A → B X₁ and X₁ → C D.
+          </p>
+        </div>
+      </div>
+
+      <button type="submit" class="convert-btn">
+        <span class="btn-text">Convert to CNF</span>
+        <span class="btn-icon">⚡</span>
+        <div class="btn-ripple"></div>
+      </button>
+    </form>
+
+    {% if cnf_output %}
+    <div class="result-section">
+      <h2>
+        <span class="result-icon">✨</span>
+        Chomsky Normal Form
+      </h2>
+
+      <!-- ✨ NEW STEPS BLOCK ADDED HERE -->
+      {% if steps %}
+      <div class="steps-section" style="margin-bottom:15px; padding:12px; border:1px solid #444; border-radius:10px; background:#111; box-shadow:0 0 10px #00eaff;">
+        <h3 style="margin-top:0;">Conversion Steps Applied</h3>
+        <ul>
+          {% for step in steps %}
+          <li>{{ step }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <!-- END OF NEW BLOCK -->
+
+      <div class="output-box">
+        <div class="copy-btn" onclick="copyToClipboard()">
+          <span>📋</span>
+          <span class="copy-text">Copy</span>
+        </div>
+        <pre id="output">{{ cnf_output }}</pre>
+      </div>
+
+      <div class="success-indicator">
+        <span class="checkmark">✓</span>
+        Conversion Complete
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <script>
+    // Particle animation
+    const particlesContainer = document.getElementById('particles');
+    for (let i = 0; i < 50; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDelay = Math.random() * 5 + 's';
+      particle.style.animationDuration = (Math.random() * 3 + 2) + 's';
+      particlesContainer.appendChild(particle);
+    }
+
+    // Button ripple effect
+    const convertBtn = document.querySelector('.convert-btn');
+    convertBtn.addEventListener('click', function (e) {
+      const ripple = this.querySelector('.btn-ripple');
+      ripple.style.left = e.offsetX + 'px';
+      ripple.style.top = e.offsetY + 'px';
+      ripple.classList.add('active');
+      setTimeout(() => ripple.classList.remove('active'), 600);
+    });
+
+    // Textarea focus effect
+    const textarea = document.getElementById('grammar');
+    const textareaGlow = document.querySelector('.textarea-glow');
+
+    textarea.addEventListener('focus', () => {
+      textareaGlow.classList.add('active');
+    });
+
+    textarea.addEventListener('blur', () => {
+      textareaGlow.classList.remove('active');
+    });
+
+    // Copy to clipboard function
+    function copyToClipboard() {
+      const output = document.getElementById('output');
+      const text = output.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const copyBtn = document.querySelector('.copy-btn');
+        const copyText = copyBtn.querySelector('.copy-text');
+        copyText.textContent = 'Copied!';
+        copyBtn.style.background = '#00ffab';
+        setTimeout(() => {
+          copyText.textContent = 'Copy';
+          copyBtn.style.background = '';
+        }, 2000);
+      });
+    }
+
+    // Animate letters on load
+    window.addEventListener('load', () => {
+      const letters = document.querySelectorAll('.letter, .arrow, .subtitle');
+      letters.forEach((letter, index) => {
+        letter.style.animationDelay = (index * 0.1) + 's';
+      });
+    });
+  </script>
+</body>
+
+</html>
