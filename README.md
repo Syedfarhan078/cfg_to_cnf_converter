@@ -94,5 +94,6 @@ Each step is displayed neatly inside a modern card-style box.
 
 Pull requests and improvements are welcome.
 If you'd like to add themes, animations, or support for more grammar formats—feel free to contribute!
+For more help contact@ syedfarhan3599@gmail.com
 
 ------------------------------------------------------------------------------------Made By Farhan---------------------------------------------------------------------------------------
